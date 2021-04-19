@@ -1,5 +1,31 @@
 # Project Requirements
 
+### Core Deliverables
+
+As a user, I should be able to:
+
+- Browse courses from a catalog
+- Add and remove courses to my schedule
+- View my schedule of courses
+- Leave a review on a course
+
+Stretch Goals:
+
+- Login system
+- Sort and filter courses
+
+Models:
+
+- `Student`
+- `Course`
+- `Teacher`
+
+- A `Student` has many courses
+- A `Student` has many teachers through courses
+- A `Course` belongs to a `Student` and a `Teacher`
+- A `Teacher` has many `Courses`
+- A `Teacher` has many students through `Courses`
+
 ### Option One - _Data Analytics Project_
 
 1. Access a Sqlite3 Database using ActiveRecord.
