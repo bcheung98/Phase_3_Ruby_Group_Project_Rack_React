@@ -7,11 +7,12 @@ class Student < ActiveRecord::Base
             if !self.courses.map {|c| c.time}.include?(Course.find(course_id).time)
                 Enrollment.create(student_id: self.id, course_id: course_id)
             else
-                puts "You cannot enroll in this course because of a time conflict!"
+                return "You cannot enroll in this course because of a time conflict!"
             end
         else
-            puts "You are already enrolled in that course!"
+            return "You are already enrolled in that course!"
         end
+        "Course added successfully!"
     end
 
     def drop_course(course_id)

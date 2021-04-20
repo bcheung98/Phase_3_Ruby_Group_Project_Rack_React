@@ -18,6 +18,16 @@ class Application
         teacher: c.teacher.name
       }}.to_json ]]
 
+    elsif req.path.match(/my_courses/) && req.post?
+      data = JSON.parse req.body.read
+      # TODO: Implement login system for different students/users
+      msg = Student.first.add_course(Course.find(data["id"]).id)
+      if msg == "Course added successfully!"
+        return [200, { "Content-Type" => "application/json" }, [ data.to_json ]]
+      else
+        resp.write msg
+      end
+
     elsif req.path.match(/courses/) && req.get?
       return [200, { "Content-Type" => "application/json" }, [ Course.all.map {|c| {
         id: c.id, 
