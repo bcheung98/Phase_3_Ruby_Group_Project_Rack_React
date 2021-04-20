@@ -21,12 +21,17 @@ class Application
     elsif req.path.match(/my_courses/) && req.post?
       data = JSON.parse req.body.read
       # TODO: Implement login system for different students/users
-      msg = Student.first.add_course(Course.find(data["id"]).id)
+      msg = Student.first.add_course(data["id"])
       if msg == "Course added successfully!"
-        return [200, { "Content-Type" => "application/json" }, [ data.to_json ]]
+        return [200, { "Content-Type" => "application/json" }, [ msg.to_json ]]
       else
-        resp.write msg
+        return [400, { "Content-Type" => "application/json" }, [ msg.to_json ]]
       end
+
+    elsif req.path.match(/my_courses/) && req.delete?
+      course_id = req.path.split("/").last
+      Student.first.drop_course(course_id)
+      return [200, { 'Content-Type' => 'application/json' }, [ {:message => "Course dropped!"}.to_json ]] 
 
     elsif req.path.match(/courses/) && req.get?
       return [200, { "Content-Type" => "application/json" }, [ Course.all.map {|c| {
