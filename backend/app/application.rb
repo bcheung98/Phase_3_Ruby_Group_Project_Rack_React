@@ -14,6 +14,7 @@ class Application
         number: c.number, 
         title: c.title, 
         time: c.time,
+        units: c.units,
         teacher: c.teacher.name
       }}.to_json ]]
 
@@ -24,6 +25,7 @@ class Application
         number: c.number, 
         title: c.title, 
         time: c.time,
+        units: c.units,
         teacher: c.teacher.name
       }}.to_json ]]
 

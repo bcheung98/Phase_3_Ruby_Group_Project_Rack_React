@@ -17,5 +17,9 @@ class Student < ActiveRecord::Base
     def drop_course(course_id)
         self.enrollments.find_by(course_id: course_id).destroy
     end
+
+    def total_units()
+        self.courses.map {|c| c.units}.sum
+    end
     
 end
