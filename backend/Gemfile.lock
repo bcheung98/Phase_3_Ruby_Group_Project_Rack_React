@@ -24,9 +24,13 @@ GEM
     minitest (5.14.4)
     mustermann (1.1.1)
       ruby2_keywords (~> 0.0.1)
+    nokogiri (1.11.3-x86_64-linux)
+      racc (~> 1.4)
+    open-uri (0.1.0)
     pry (0.14.1)
       coderay (~> 1.1)
       method_source (~> 1.0)
+    racc (1.5.2)
     rack (2.2.3)
     rack-cors (1.1.1)
       rack (>= 2.0.0)
@@ -71,6 +75,8 @@ PLATFORMS
 DEPENDENCIES
   activerecord (~> 5.2)
   faker
+  nokogiri
+  open-uri
   pry
   rack
   rack-cors
