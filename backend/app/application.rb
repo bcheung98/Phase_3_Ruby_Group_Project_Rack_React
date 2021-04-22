@@ -1,5 +1,9 @@
 class Application
 
+  def initialize()
+    @current_student = ""
+  end
+
   def call(env)
     resp = Rack::Response.new
     req = Rack::Request.new(env)
@@ -9,22 +13,37 @@ class Application
 
     elsif req.path.match(/users/) && req.post?
       data = JSON.parse req.body.read
-      student_usernames = Student.all.map {|s| s.username}
-      student_emails = Student.all.map {|s| s.email}
-      if !student_usernames.include?(data["username"]) 
-        if !student_emails.include?(data["email"])
-          Student.create(data)
-          msg = "Successfully registered!"
+      #register: data.size = 4, #login: data.size = 3
+      if data.size === 4
+        student_usernames = Student.all.map {|s| s.username}
+        student_emails = Student.all.map {|s| s.email}
+        if !student_usernames.include?(data["username"]) 
+          if !student_emails.include?(data["email"])
+            Student.create(data)
+            return [200, { "Content-Type" => "application/json" }, [ {:message => "Successfully registered!"}.to_json ]]
+          else
+            return [400, { 'Content-Type' => 'application/json' }, [ {:message => "ERROR: That email has already been registered"}.to_json ]] 
+          end
         else
-          msg = "ERROR: That email has already been registered"
+          return [400, { 'Content-Type' => 'application/json' }, [ {:message => "ERROR: That username has already been registered"}.to_json ]] 
         end
-      else
-        msg = "ERROR: That username has already been registered"
-      end
-      return [200, { "Content-Type" => "application/json" }, [ data.to_json ]] 
+        return [200, { "Content-Type" => "application/json" }, [ data.to_json ]]
+      elsif data.size === 3
+        student_usernames = Student.all.map {|s| s.username}
+        if student_usernames.include?(data["username"]) 
+          @current_student = Student.find_by(username: data["username"])
+          if @current_student.password === data["password"]
+            return [200, { "Content-Type" => "application/json" }, [ {:name => data["name"], :courses => @current_student.courses}.to_json ]]
+          else
+            return [400, { 'Content-Type' => 'application/json' }, [ {:message => "Incorrect password"}.to_json ]] 
+          end
+        else
+          return [400, { 'Content-Type' => 'application/json' }, [ {:message => "Username does not exist"}.to_json ]] 
+        end
+      end 
 
     elsif req.path.match(/my_courses/) && req.get?
-      return [200, { "Content-Type" => "application/json" }, [ Student.first.courses.map {|c| {
+      return [200, { "Content-Type" => "application/json" }, [ @current_student.courses.map {|c| {
         id: c.id, 
         subject: c.subject, 
         number: c.number, 
@@ -36,8 +55,7 @@ class Application
 
     elsif req.path.match(/my_courses/) && req.post?
       data = JSON.parse req.body.read
-      # TODO: Implement login system for different students/users
-      msg = Student.first.add_course(data["id"])
+      msg = @current_student.add_course(data["id"])
       if msg == "Course added successfully!"
         return [200, { "Content-Type" => "application/json" }, [ msg.to_json ]]
       else
@@ -46,7 +64,7 @@ class Application
 
     elsif req.path.match(/my_courses/) && req.delete?
       course_id = req.path.split("/").last
-      Student.first.drop_course(course_id)
+      @current_student.drop_course(course_id)
       return [200, { 'Content-Type' => 'application/json' }, [ {:message => "Course dropped!"}.to_json ]] 
 
     elsif req.path.match(/courses/) && req.get?
