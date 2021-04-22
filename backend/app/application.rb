@@ -1,5 +1,3 @@
-current_student = ""
-
 class Application
 
   def call(env)
@@ -31,7 +29,9 @@ class Application
         if student_usernames.include?(data["username"]) 
           current_student = Student.find_by(username: data["username"])
           if current_student.password === data["password"]
-            return [200, { "Content-Type" => "application/json" }, [ {:name => data["name"], :courses => current_student.courses}.to_json ]]
+            return [200, { "Content-Type" => "application/json" }, [ {:name => data["name"], :courses => current_student.courses.map {|c| 
+              {:subject => c.subject, :number => c.number, :title => c.title, :time => c.time, :teacher => c.teacher.name}
+              }}.to_json ]]
           else
             return [400, { 'Content-Type' => 'application/json' }, [ {:message => "Incorrect password"}.to_json ]] 
           end
@@ -40,20 +40,21 @@ class Application
         end
       end 
 
-    elsif req.path.match(/my_courses/) && req.get?
-      return [200, { "Content-Type" => "application/json" }, [ current_student.courses.map {|c| {
-        id: c.id, 
-        subject: c.subject, 
-        number: c.number, 
-        title: c.title, 
-        time: c.time,
-        units: c.units,
-        teacher: c.teacher.name
-      }}.to_json ]]
+    # elsif req.path.match(/my_courses/) && req.get?
+    #   return [200, { "Content-Type" => "application/json" }, [ @current_student.courses.map {|c| {
+    #     id: c.id, 
+    #     subject: c.subject, 
+    #     number: c.number, 
+    #     title: c.title, 
+    #     time: c.time,
+    #     units: c.units,
+    #     teacher: c.teacher.name
+    #   }}.to_json ]]
 
     elsif req.path.match(/my_courses/) && req.post?
       data = JSON.parse req.body.read
-      msg = current_student.add_course(data["id"])
+      student = Student.find_by(username: data["user"])
+      msg = student.add_course(data["course"]["id"])
       if msg == "Course added successfully!"
         return [200, { "Content-Type" => "application/json" }, [ msg.to_json ]]
       else
@@ -62,7 +63,7 @@ class Application
 
     elsif req.path.match(/my_courses/) && req.delete?
       course_id = req.path.split("/").last
-      current_student.drop_course(course_id)
+      @current_student.drop_course(course_id)
       return [200, { 'Content-Type' => 'application/json' }, [ {:message => "Course dropped!"}.to_json ]] 
 
     elsif req.path.match(/courses/) && req.get?
