@@ -4,7 +4,8 @@ def seed_students()
     Student.destroy_all
     puts "Seeding students..."
     1000.times do
-        Student.create(name: Faker::Name.name)
+        name = Faker::Name.name
+        Student.create(name: name, username: name.split(" ").join(""), email: "#{name.split(" ").join("")}@email.com", password: rand(100000..999999).to_s)
     end
 end
 
