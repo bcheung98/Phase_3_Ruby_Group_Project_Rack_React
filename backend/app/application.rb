@@ -30,7 +30,7 @@ class Application
           current_student = Student.find_by(username: data["username"])
           if current_student.password === data["password"]
             return [200, { "Content-Type" => "application/json" }, [ {:name => data["name"], :courses => current_student.courses.map {|c| 
-              {:subject => c.subject, :number => c.number, :title => c.title, :time => c.time, :teacher => c.teacher.name}
+              {:id => c.id, :subject => c.subject, :number => c.number, :title => c.title, :time => c.time, :teacher => c.teacher.name}
               }}.to_json ]]
           else
             return [400, { 'Content-Type' => 'application/json' }, [ {:message => "Incorrect password"}.to_json ]] 
@@ -39,17 +39,6 @@ class Application
           return [400, { 'Content-Type' => 'application/json' }, [ {:message => "Username does not exist"}.to_json ]] 
         end
       end 
-
-    # elsif req.path.match(/my_courses/) && req.get?
-    #   return [200, { "Content-Type" => "application/json" }, [ @current_student.courses.map {|c| {
-    #     id: c.id, 
-    #     subject: c.subject, 
-    #     number: c.number, 
-    #     title: c.title, 
-    #     time: c.time,
-    #     units: c.units,
-    #     teacher: c.teacher.name
-    #   }}.to_json ]]
 
     elsif req.path.match(/my_courses/) && req.post?
       data = JSON.parse req.body.read
@@ -62,8 +51,10 @@ class Application
       end
 
     elsif req.path.match(/my_courses/) && req.delete?
+      data = JSON.parse req.body.read
       course_id = req.path.split("/").last
-      @current_student.drop_course(course_id)
+      student = Student.find_by(username: data["user"])
+      student.drop_course(course_id)
       return [200, { 'Content-Type' => 'application/json' }, [ {:message => "Course dropped!"}.to_json ]] 
 
     elsif req.path.match(/courses/) && req.get?
