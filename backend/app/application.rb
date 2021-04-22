@@ -1,8 +1,6 @@
 class Application
 
-  def initialize()
-    @current_student = ""
-  end
+  @current_student = ""
 
   def call(env)
     resp = Rack::Response.new
